@@ -1,13 +1,19 @@
+# app/data/save_data.py
 import os
 import requests
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# ✅ 수정: 이 sys.path.append 줄은 Uvicorn의 --app-dir ./app 사용 시 불필요하거나 충돌을 일으킬 수 있으므로 제거합니다.
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from dotenv import load_dotenv
 from multiprocessing import Pool
-from process_restaurant import process_restaurant
+# ✅ 수정: 같은 디렉토리 내의 모듈은 상대 경로 임포트
+from .process_restaurant import process_restaurant
 import json
 
-load_dotenv()
+# ✅ .env 파일 로드 (이 스크립트는 /home/ubuntu/py/app/data 에 있고, .env는 /home/ubuntu/py/app 에 있으므로
+# 두 단계 위로 가서 .env를 찾아 로드하도록 경로를 지정합니다.)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
+
 KAKAO_API_KEY = os.getenv("KAKAO_API_KEY")
 
 LAT_START = 37.41992
