@@ -1,4 +1,6 @@
-from bring_to_server import get_reivew_texts
+# app/routes/get_reviews.py
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.bring_to_server import get_reivew_texts
 from fastapi import APIRouter
 router = APIRouter()
 
