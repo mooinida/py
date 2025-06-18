@@ -1,0 +1,45 @@
+# Python Bytecode Files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+/bin/
+/include/
+/lib/
+/share/
+
+# Editor and IDE Files
+.vscode/        # VS Code specific files (e.g., launch.json, settings.json)
+.idea/          # PyCharm/IntelliJ IDEA files
+*.sublime-project
+*.sublime-workspace
+.DS_Store       # macOS specific file
+Thumbs.db       # Windows specific file
+
+# Environment Variables
+.env
+.flaskenv
+
+# Test / Debugging Files
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+*.sqlite3       # SQLite database files (if used for local development)
+tmp/            # Temporary directories
+
+# Build Artifacts
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# OS-generated files
+*~
+*.bak
+*.swp
