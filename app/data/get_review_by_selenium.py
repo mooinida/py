@@ -1,29 +1,29 @@
+# app/data/get_review_by_selenium.py
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
-from send_to_server import send_restaurant_rating, send_reviews, send_menus
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.send_to_server import send_restaurant_rating, send_reviews, send_menus
 
 import time
 
 def init_driver():
     options = Options()
-    options.add_argument("--headless=new")  # Headless 모드
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     return webdriver.Chrome(options=options)
 
 def crawl_review(driver ,url: str, place_id: int):
     try:
-        # 새 탭 열기
         driver.execute_script("window.open(arguments[0]);", url)
         driver.switch_to.window(driver.window_handles[-1])
 
         wait = WebDriverWait(driver, 10)
 
-        # 탭 목록 찾기
         tab_list = wait.until(
             EC.presence_of_all_elements_located((By.CSS_SELECTOR, "#mainContent > div.main_detail.home > div.wrap_tab.tab_primary > div > ul > li"))
         )
@@ -40,7 +40,6 @@ def crawl_review(driver ,url: str, place_id: int):
             except:
                 continue
 
-        # 메뉴 수집
         menus = []
         if menu_button:
             menu_button.click()
@@ -55,7 +54,6 @@ def crawl_review(driver ,url: str, place_id: int):
                 except:
                     continue
 
-        # 리뷰 수집
         reviews = []
         rating = 0.0
         review_count = 0
@@ -86,7 +84,6 @@ def crawl_review(driver ,url: str, place_id: int):
                 except:
                     continue
 
-        # 서버 전송
         send_restaurant_rating(place_id, rating, review_count)
         send_reviews(place_id, reviews)
         send_menus(place_id, menus)
@@ -95,5 +92,5 @@ def crawl_review(driver ,url: str, place_id: int):
         print(f"[{place_id}] 오류 발생:", e)
 
     finally:
-        driver.close()  # 현재 탭 닫기
-        driver.switch_to.window(driver.window_handles[0])  # 원래 탭으로 전환
+        driver.close()
+        driver.switch_to.window(driver.window_handles[0])
