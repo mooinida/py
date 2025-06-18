@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.token import router as token_router
-from routes.recommendation import router as recommendation_router
-from routes.get_menus import router as menu_router
-from routes.get_reviews import router as review_router
+from .routes.token import router as token_router
+from .routes.recommendation import router as recommendation_router
+from .routes.get_menus import router as menu_router
+from .routes.get_reviews import router as review_router
 origins = [
     "http://localhost:5173",         # 로컬 테스트
     "http://mooin.shop",             # 프론트 도메인
