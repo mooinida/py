@@ -1,5 +1,8 @@
-from get_review_by_selenium import crawl_review, init_driver
-from send_to_server import send_restaurant, restaurant_is_exist
+# app/data/process_restaurant.py
+# ✅ 수정: 같은 디렉토리 내의 모듈은 상대 경로 임포트
+from .get_review_by_selenium import crawl_review, init_driver
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.send_to_server import send_restaurant, restaurant_is_exist
 
 def process_restaurant(r):
     try:
