@@ -1,13 +1,18 @@
+# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routes.token import router as token_router
-from .routes.recommendation import router as recommendation_router
-from .routes.get_menus import router as menu_router
-from .routes.get_reviews import router as review_router
-from dotenv import load_dotenv # 이 줄이 있어야 함
-load_dotenv() # 이 줄이 있어야 함 (환경 변수를 로드합니다)
 
-import os # os 모듈도 임포트되어 있어야 합니다.
+# ✅ .env 파일 로드 (main.py는 /home/ubuntu/py/app 에 있고, .env는 같은 위치에 있으므로)
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.routes.token import router as token_router
+from app.routes.recommendation import router as recommendation_router
+from app.routes.get_menus import router as menu_router
+from app.routes.get_reviews import router as review_router
+
 origins = [
     "http://localhost:5173",         # 로컬 테스트
     "http://mooin.shop",             # 프론트 도메인
@@ -27,6 +32,7 @@ app.include_router(token_router)
 app.include_router(recommendation_router)
 app.include_router(menu_router)
 app.include_router(review_router)
+
 @app.get("/")
 async def root():
     return {"message": "서버 정상 작동 중!"}
