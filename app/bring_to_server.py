@@ -1,7 +1,13 @@
+# app/bring_to_server.py
 import requests
-from my_token.token_storage import get_valid_access_token
-import httpx
-SPRING_SERVER = "http://localhost:8080"
+import os
+from dotenv import load_dotenv
+# ✅ .env 파일 로드 (이 스크립트는 /home/ubuntu/py/app 에 있고, .env는 같은 위치에 있으므로)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+
+# ✅ SPRING_SERVER와 JWT_TOKEN을 .env에서 가져오도록 변경
+SPRING_SERVER = os.getenv("SPRING_SERVER", "http://localhost:8080")
+JWT_TOKEN = os.getenv("JWT_TOKEN")
 
 def bring_menu_filter_restaurants(user_id:str, keywords:list):
     url = f"{SPRING_SERVER}/api/restaurants/filter/menu"
@@ -13,8 +19,6 @@ def bring_menu_filter_restaurants(user_id:str, keywords:list):
     response.raise_for_status()
     data = response.json()
     return {"restaurants": data} 
-
-
 
 def bring_context_filter_restaurants(user_id:str, contexts:list):
     url = f"{SPRING_SERVER}/api/restaurants/filter/context"
