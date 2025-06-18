@@ -4,6 +4,10 @@ from .routes.token import router as token_router
 from .routes.recommendation import router as recommendation_router
 from .routes.get_menus import router as menu_router
 from .routes.get_reviews import router as review_router
+from dotenv import load_dotenv # 이 줄이 있어야 함
+load_dotenv() # 이 줄이 있어야 함 (환경 변수를 로드합니다)
+
+import os # os 모듈도 임포트되어 있어야 합니다.
 origins = [
     "http://localhost:5173",         # 로컬 테스트
     "http://mooin.shop",             # 프론트 도메인
