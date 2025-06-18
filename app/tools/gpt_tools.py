@@ -1,38 +1,44 @@
+# app/tools/gpt_tools.py
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# ✅ 수정: sys.path.append는 Uvicorn의 --app-dir ./app 사용 시 불필요하므로 제거합니다.
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import asyncio
 
-from service.saveRestaurant_pipeline import (
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.service.saveRestaurant_pipeline import (
     get_location_and_context,
     get_location_and_menu,
     get_coordinates_from_location,
     get_location_from_text,
-    get_nearby_restaurants_DB
+    get_nearby_restaurants_DB,
+    findall_restaurants_DB, # findall_restaurants_DB 추가
+    filtering_restaurant, # filtering_restaurant 추가
 )
-from bring_to_server import (
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.bring_to_server import (
     bring_menu_filter_restaurants,
     bring_context_filter_restaurants,
     bring_restaurants_list,
     bring_rating_count
 )
-from llm.gemini_call import run_llm_analysis, get_final_recommendation
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.llm.gemini_call import run_llm_analysis, get_final_recommendation
 from collections import Counter
 from typing import TypedDict
-from langgraph.graph import StateGraph
-from service.saveRestaurant_pipeline import filtering_restaurant
+from langgraph.graph import StateGraph # StateGraph는 langGraph.py에 있으므로 여기서 제거 (혹시 모르니 유지해도 큰 문제는 없음)
 
-# Define the state structure
-class State(TypedDict):
-    user_id:str
-    user_input: str
-    location: dict
-    menu: dict
-    context: dict
-    candidates: dict
-    restaurant_details: dict
-    restaurant_aiRating: dict
-    result: dict
+# Define the state structure (langGraphRunner.py에 정의되어 있으므로 여기서는 제거하거나 유지)
+# class State(TypedDict):
+#     user_id:str
+#     user_input: str
+#     location: dict
+#     menu: dict
+#     context: dict
+#     candidates: dict
+#     restaurant_details: dict
+#     restaurant_aiRating: dict
+#     result: dict
 
 # LangGraph-compatible tools
 
@@ -72,9 +78,10 @@ def get_restaurant_info(user_id:str, restaurant_ids: dict) -> dict:
     print("교집합:")
     print(restaurant_ids)
     try:
+        # ✅ 수정: filtering_restaurant 함수도 saveRestaurant_pipeline에서 가져와 사용합니다.
         restaurants = restaurant_ids.get("restaurants", [])
         data = bring_rating_count(user_id, restaurants)
-        filtered_restaurant = filtering_restaurant(data)
+        filtered_restaurant = filtering_restaurant(data) # 이미 saveRestaurant_pipeline에서 임포트됨
         result = bring_restaurants_list(user_id, filtered_restaurant)
         return result
     except Exception as e:
@@ -87,9 +94,10 @@ def intersection_restaurant(location:dict, menu:dict, context:dict):
     """
     print("교집합함수 호출")
     try:
-        location_ids = location.get("restaurants", [])
-        menu_ids = menu.get("restaurants", [])
-        context_ids = context.get("restaurants", [])
+        # set() 에 dict를 바로 넣을 수 없으므로, ID 목록으로 변경해야 함
+        location_ids = [r['placeId'] for r in location.get("restaurants", []) if 'placeId' in r]
+        menu_ids = [r['placeId'] for r in menu.get("restaurants", []) if 'placeId' in r]
+        context_ids = [r['placeId'] for r in context.get("restaurants", []) if 'placeId' in r]
 
         strategies = [
             ("location_menu_context", set(location_ids) & set(menu_ids) & set(context_ids)),
@@ -120,5 +128,4 @@ async def final_recommend(restaurants_info: dict, input_text:str) -> dict:
             "aiRating":ai_rating
             }
 
-graph_builder = StateGraph(State)
-
+# graph_builder = StateGraph(State) # langGraphRunner.py에 정의되어 있으므로 여기서 제거
