@@ -1,4 +1,6 @@
-from agent.langGraphRunner import run_recommendation_pipeline
+# app/routes/recommendation.py
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.agent.langGraphRunner import run_recommendation_pipeline
 from fastapi import APIRouter
 router = APIRouter()
 
