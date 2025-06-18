@@ -1,9 +1,11 @@
+# app/agent/langGraph.py
 from langgraph.graph import StateGraph, END
 from langchain_core.runnables import RunnableLambda
 from langgraph.graph.message import add_messages
 from typing import Annotated, TypedDict
 
-from tools.gpt_tools import (
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.tools.gpt_tools import (
     get_location_tool,
     get_menu_tool,
     get_context_tool,
