@@ -1,3 +1,4 @@
+# app/service/saveRestaurant_pipeline.py
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 import json
@@ -5,17 +6,21 @@ import re
 import requests
 import os
 import math
-from my_token.token_storage import get_valid_access_token
+# ✅ 수정: 'app' 패키지 기준으로 절대 임포트
+from app.my_token.token_storage import get_valid_access_token
 import aiohttp
+
+# ✅ .env 파일 로드 (이 스크립트는 /home/ubuntu/py/app/service 에 있고, .env는 /home/ubuntu/py/app 에 있으므로
+# 두 단계 위로 가서 .env를 찾아 로드하도록 경로를 지정합니다.)
+from dotenv import load_dotenv # load_dotenv import 추가
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", "..", ".env"))
 
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 llm = ChatGoogleGenerativeAI(model="models/gemini-1.5-pro", google_api_key=GOOGLE_API_KEY)
 
-import json
-import re
-from langchain.prompts import PromptTemplate
+# from langchain.prompts import PromptTemplate # 이미 위에서 임포트됨
 
 async def get_location_and_context(text: str):
     prompt = PromptTemplate.from_template(
@@ -36,7 +41,7 @@ async def get_location_and_context(text: str):
     )
 
     chain = prompt | llm
-    result = await chain.ainvoke({"text": text})  # ✅ 비동기 호출
+    result = await chain.ainvoke({"text": text})
 
     try:
         json_str = re.search(r'\{.*\}', result.content, re.DOTALL)
@@ -61,7 +66,7 @@ async def get_location_and_menu(text: str):
         문장: {text}
         
         ----------------------------------------------
-        답변형식:
+         답변형식:
         {{
             "keywords": ["짜장면", "짬뽕", "중식"]
         }}
@@ -69,7 +74,7 @@ async def get_location_and_menu(text: str):
     )
 
     chain = prompt | llm
-    result = await chain.ainvoke({"text": text})  # ✅ 비동기 호출
+    result = await chain.ainvoke({"text": text})
 
     try:
         json_str = re.search(r'\{.*\}', result.content, re.DOTALL)
@@ -88,7 +93,7 @@ async def get_location_from_text(text: str) -> str:
     "장소,지역명이 없으면 빈 리스트 리턴하시오."
     "문장: {text}")
     chain = prompt | llm
-    result = await chain.ainvoke({"text": text})  # ✅ 비동기 호출
+    result = await chain.ainvoke({"text": text})
     location = result.content.strip()
     print(location)
     return location
@@ -112,7 +117,8 @@ async def get_coordinates_from_location(location: str):
     except Exception as e:
         return {"error": f"예외 발생: {str(e)}"}    
 
-SPRING_SERVER = "http://localhost:8080"
+# ✅ SPRING_SERVER도 .env에서 가져오도록 변경 (또는 직접 값 설정)
+SPRING_SERVER = os.getenv("SPRING_SERVER", "http://localhost:8080")
 def get_nearby_restaurants_DB(user_id:str, latitude: float, longitude: float, radius: int) -> dict:
     params = {
         "lat": latitude,
@@ -132,8 +138,6 @@ def get_nearby_restaurants_DB(user_id:str, latitude: float, longitude: float, ra
     except Exception as e:
         return {"error": f"예외 발생: {str(e)}"}
     
-
-
 def findall_restaurants_DB(user_id:str) -> dict:
     url = f"{SPRING_SERVER}/api/restaurants/all"
     token = get_valid_access_token(user_id, f"{SPRING_SERVER}/api/token")
@@ -148,9 +152,6 @@ def findall_restaurants_DB(user_id:str) -> dict:
     except Exception as e:
         return {"error": f"예외 발생: {str(e)}"}
     
-    
-
-
 def filtering_restaurant(restaurants: dict) -> dict:
     filtered_restaurants = []
     for r in restaurants["restaurants"]:
